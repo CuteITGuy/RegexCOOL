@@ -1,0 +1,100 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib"
+                    xmlns:xaml="http://wpf.cb.com/xaml">
+
+    <Thickness x:Key="ThicknessMedium">8</Thickness>
+
+    <Thickness x:Key="ThicknessSmall">4</Thickness>
+
+    <sys:Double x:Key="ListBoxItemHeight">20</sys:Double>
+
+    <SolidColorBrush x:Key="BrushBlue" Color="#FF003AB8" />
+
+    <SolidColorBrush x:Key="BrushBorder" Color="#FF8DFF58" />
+
+    <SolidColorBrush x:Key="BrushGray" Color="#FF700070" />
+
+    <SolidColorBrush x:Key="BrushGreen" Color="#FFD1FFE8" />
+
+    <SolidColorBrush x:Key="BrushNegative" Color="#FFD31010" />
+
+    <SolidColorBrush x:Key="BrushNone" Color="Black" />
+
+    <SolidColorBrush x:Key="BrushPositive" Color="#FF00A87A" />
+
+    <SolidColorBrush x:Key="BrushYellow" Color="#FFFFE77B" />
+
+    <VisualBrush x:Key="BrushText" Stretch="Fill">
+        <VisualBrush.Visual>
+            <TextBlock Text="Paste Or Type Text Here"
+                       Background="White"
+                       Foreground="LightGray"
+                       Padding="{StaticResource ThicknessMedium}" />
+        </VisualBrush.Visual>
+    </VisualBrush>
+
+    <ControlTemplate x:Key="ControlTemplateButton">
+        <Image x:Name="ImageMain" Source="Images/GreenGo.png" Stretch="Uniform">
+            <Image.Effect>
+                <DropShadowEffect Color="#FFCDCDCD" ShadowDepth="4" RenderingBias="Quality" />
+            </Image.Effect>
+        </Image>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property="Button.IsMouseOver" Value="True">
+                <Setter TargetName="ImageMain" Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#FFB9B9B9" ShadowDepth="2" RenderingBias="Quality" />
+                    </Setter.Value>
+                </Setter>
+                <Setter TargetName="ImageMain" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform X="1.5" Y="1.5" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+            <Trigger Property="Button.IsPressed" Value="True">
+                <Setter TargetName="ImageMain" Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect Color="#FFB9B9B9" ShadowDepth="1" Direction="135" RenderingBias="Quality" />
+                    </Setter.Value>
+                </Setter>
+                <Setter TargetName="ImageMain" Property="RenderTransform">
+                    <Setter.Value>
+                        <TranslateTransform X="3" Y="3" />
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+    
+    <DataTemplate x:Key="dataTemplateHeader">
+        <Border BorderBrush="White" BorderThickness="1"
+                Background="{StaticResource BrushYellow}" CornerRadius="4">
+            <ContentPresenter Content="{TemplateBinding Content}" Margin="6,0,6,0" />
+        </Border>
+    </DataTemplate>
+
+    <Style TargetType="TabItem">
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="BorderBrush" Value="{StaticResource BrushYellow}" />
+        <Setter Property="BorderThickness" Value="2" />
+    </Style>
+
+    <Style TargetType="TextBox">
+        <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}" />
+        <Setter Property="Margin" Value="{StaticResource ThicknessSmall}" />
+    </Style>
+
+    <Style x:Key="styleInputTextBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+        <Setter Property="AcceptsReturn" Value="True" />
+    </Style>
+
+    <Style x:Key="styleGridSplitterVertical" TargetType="GridSplitter">
+        <Setter Property="HorizontalAlignment" Value="Left" />
+        <Setter Property="Background" Value="{StaticResource BrushGray}" />
+        <Setter Property="Margin" Value="-2,0,-2,0" />
+        <Setter Property="Width" Value="4" />
+    </Style>
+</ResourceDictionary>

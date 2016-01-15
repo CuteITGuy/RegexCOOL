@@ -1,0 +1,44 @@
+﻿<local:RegexTab x:Class="CB.RegexCOOL.RegexReplaceTab"
+                xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+                xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                xmlns:local="clr-namespace:CB.RegexCOOL"
+                mc:Ignorable="d"
+                d:DesignHeight="300" d:DesignWidth="300">
+    
+    <local:RegexTab.Resources>
+        <Style x:Key="SrollableTextBoxStyle" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="HorizontalScrollBarVisibility" Value="Disabled"></Setter>
+            <Setter Property="TextWrapping" Value="Wrap"></Setter>
+            <Setter Property="VerticalScrollBarVisibility" Value="Auto"></Setter>
+        </Style>
+    </local:RegexTab.Resources>
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition></RowDefinition>
+            <RowDefinition></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+            <RowDefinition Height="Auto"></RowDefinition>
+        </Grid.RowDefinitions>
+        
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition></ColumnDefinition>
+            <ColumnDefinition Width="Auto"></ColumnDefinition>
+        </Grid.ColumnDefinitions>
+        
+        <TextBox x:Name="textBoxInput" Grid.Row="0" Grid.Column="0"
+                 AcceptsReturn="True" AcceptsTab="True"
+                 Style="{StaticResource SrollableTextBoxStyle}"></TextBox>
+
+        <TextBox x:Name="textBoxOutput" Grid.Row="1" Grid.Column="0"
+                 IsReadOnly="True" IsReadOnlyCaretVisible="True"
+                 Style="{StaticResource SrollableTextBoxStyle}"></TextBox>
+
+        <TextBox x:Name="textBoxReplacement" Grid.Row="2" Grid.Column="0"></TextBox>
+        
+        <Button x:Name="buttonMatchEvaluator" Grid.Row="3" Grid.Column="0"
+                Content="Match Evaluator" Click="ButtonMatchEvaluator_OnClick"></Button>
+    </Grid>
+</local:RegexTab>

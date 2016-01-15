@@ -1,0 +1,376 @@
+﻿<Window x:Class="CB.RegexCOOL.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:sys="clr-namespace:System;assembly=mscorlib"
+        xmlns:xaml="http://wpf.cb.com/xaml"
+        xmlns:local="clr-namespace:CB.RegexCOOL"
+        Title="MainWindow" Height="660" Width="900" FontSize="13"
+        xaml:AeroGlass.AeroGlassEnabled="True">
+
+    <Window.CommandBindings>
+        <CommandBinding Command="xaml:TextCommands.Trim"
+                        CanExecute="CommandBindingTrim_OnCanExecute"
+                        Executed="CommandBindingTrim_OnExecuted" />
+        <CommandBinding Command="xaml:TextCommands.TrimEnd"
+                        CanExecute="CommandBindingTrim_OnCanExecute"
+                        Executed="CommandBindingTrimEnd_OnExecuted" />
+        <CommandBinding Command="xaml:TextCommands.TrimStart"
+                        CanExecute="CommandBindingTrim_OnCanExecute"
+                        Executed="CommandBindingTrimStart_OnExecuted" />
+    </Window.CommandBindings>
+
+    <Window.Resources>
+        <local:LinesRegexTargetCollection x:Key="CollectionNegative" />
+
+        <local:LinesRegexTargetCollection x:Key="CollectionPositive" />
+
+        <local:TextRegexTargetCollection x:Key="CollectionResults" />
+
+        <Thickness x:Key="ThicknessMedium">8</Thickness>
+
+        <Thickness x:Key="ThicknessSmall">4</Thickness>
+
+        <sys:Double x:Key="ListBoxItemHeight">20</sys:Double>
+
+        <SolidColorBrush x:Key="BrushBlue" Color="#FF003AB8" />
+
+        <SolidColorBrush x:Key="BrushBorder" Color="#FF8DFF58" />
+
+        <SolidColorBrush x:Key="BrushGray" Color="#FF700070" />
+
+        <SolidColorBrush x:Key="BrushGreen" Color="#FFD1FFE8" />
+
+        <SolidColorBrush x:Key="BrushNegative" Color="#FFD31010" />
+
+        <SolidColorBrush x:Key="BrushNone" Color="Black" />
+
+        <SolidColorBrush x:Key="BrushPositive" Color="#FF00A87A" />
+
+        <SolidColorBrush x:Key="BrushYellow" Color="#FFFFE77B" />
+
+        <VisualBrush x:Key="BrushText" Stretch="Fill">
+            <VisualBrush.Visual>
+                <TextBlock Text="Paste Or Type Text Here"
+                           Background="White"
+                           Foreground="LightGray"
+                           Padding="{StaticResource ThicknessMedium}" />
+            </VisualBrush.Visual>
+        </VisualBrush>
+
+        <xaml:BooleanToObjectConverter x:Key="ConverterBrush"
+                                       ObjectWhenFalse="{StaticResource BrushNegative}"
+                                       ObjectWhenTrue="{StaticResource BrushPositive}"
+                                       ObjectWhenNull="{StaticResource BrushNone}" />
+
+        <local:CountToTextConverter x:Key="CountToTextConverter" />
+
+        <local:CountToVisibilityConverter x:Key="CountToVisibilityConverter" />
+
+        <ContextMenu x:Key="ContextMenuTextProcessing">
+            <MenuItem Command="xaml:TextCommands.Trim">
+                <MenuItem.Icon>
+                    <Image Source="Images/Trim.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Command="xaml:TextCommands.TrimStart">
+                <MenuItem.Icon>
+                    <Image Source="Images/TrimStart.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <MenuItem Command="xaml:TextCommands.TrimEnd">
+                <MenuItem.Icon>
+                    <Image Source="Images/TrimEnd.png" />
+                </MenuItem.Icon>
+            </MenuItem>
+
+            <Separator />
+
+            <MenuItem Command="Copy" />
+
+            <MenuItem Command="Cut" />
+
+            <MenuItem Command="Paste" />
+        </ContextMenu>
+
+        <ControlTemplate x:Key="ControlTemplateButton">
+            <Image x:Name="ImageMain" Source="Images/GreenGo.png" Stretch="Uniform">
+                <Image.Effect>
+                    <DropShadowEffect Color="#FFCDCDCD" ShadowDepth="4" RenderingBias="Quality" />
+                </Image.Effect>
+            </Image>
+
+            <ControlTemplate.Triggers>
+                <Trigger Property="Button.IsMouseOver" Value="True">
+                    <Setter TargetName="ImageMain" Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#FFB9B9B9" ShadowDepth="2" RenderingBias="Quality" />
+                        </Setter.Value>
+                    </Setter>
+                    <Setter TargetName="ImageMain" Property="RenderTransform">
+                        <Setter.Value>
+                            <TranslateTransform X="1.5" Y="1.5" />
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+                <Trigger Property="Button.IsPressed" Value="True">
+                    <Setter TargetName="ImageMain" Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect Color="#FFB9B9B9" ShadowDepth="1" Direction="135" RenderingBias="Quality" />
+                        </Setter.Value>
+                    </Setter>
+                    <Setter TargetName="ImageMain" Property="RenderTransform">
+                        <Setter.Value>
+                            <TranslateTransform X="3" Y="3" />
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <DataTemplate x:Key="DataTemplateGroups" DataType="local:RegexMatchTarget">
+            <local:CapturesStackPanel Captures="{Binding Groups}"
+                                      Height="{StaticResource ListBoxItemHeight}"
+                                      Orientation="Horizontal " />
+        </DataTemplate>
+
+        <DataTemplate x:Key="DataTemplateHeader">
+            <Border BorderBrush="White" BorderThickness="1"
+                    Background="{StaticResource BrushYellow}" CornerRadius="4">
+                <ContentPresenter Content="{TemplateBinding Content}" Margin="6,0,6,0" />
+            </Border>
+        </DataTemplate>
+
+        <DataTemplate x:Key="DataTemplateMatch" DataType="local:RegexMatchTarget">
+            <TextBlock Text="{Binding Path=Input}"
+                       Foreground="{Binding Path=IsMatch, Converter={StaticResource ConverterBrush}, Mode=OneWay}"
+                       Height="{StaticResource ListBoxItemHeight}"
+                       Margin="4,0,4,0"
+                       VerticalAlignment="Center" />
+        </DataTemplate>
+
+        <Style x:Key="styleVerticalGridSplitter" TargetType="GridSplitter">
+            <Setter Property="HorizontalAlignment" Value="Left" />
+            <Setter Property="Background" Value="{StaticResource BrushGray}" />
+            <Setter Property="Margin" Value="-2,0,-2,0" />
+            <Setter Property="Width" Value="4" />
+        </Style>
+
+        <Style TargetType="GroupBox">
+            <Setter Property="BorderBrush" Value="{StaticResource BrushYellow}" />
+            <Setter Property="Foreground" Value="#FF872323" />
+            <Setter Property="HeaderTemplate" Value="{StaticResource DataTemplateHeader}" />
+            <Setter Property="Margin" Value="{StaticResource ThicknessMedium}" />
+        </Style>
+
+        <Style TargetType="ListBox">
+            <EventSetter Event="SelectionChanged" Handler="ListBoxes_OnSelectionChanged" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}" />
+            <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            <Setter Property="IsSynchronizedWithCurrentItem" Value="True" />
+            <Setter Property="ItemsSource" Value="{Binding}" />
+            <Setter Property="Margin" Value="{StaticResource ThicknessSmall}" />
+            <Setter Property="xaml:ItemsControlServices.InactiveSelectionColor" Value="Khaki" />
+        </Style>
+
+        <Style TargetType="TabItem">
+            <Setter Property="Background" Value="Transparent" />
+            <Setter Property="BorderBrush" Value="{StaticResource BrushYellow}" />
+            <Setter Property="BorderThickness" Value="2" />
+        </Style>
+
+        <Style TargetType="TextBox">
+            <Setter Property="BorderBrush" Value="{StaticResource BrushBorder}" />
+            <Setter Property="Margin" Value="{StaticResource ThicknessSmall}" />
+        </Style>
+
+        <Style x:Key="StyleHiddenTextBlock" TargetType="TextBlock">
+            <Setter Property="Background" Value="{StaticResource BrushGreen}" />
+            <Setter Property="Margin" Value="8,0,8,0" />
+            <Setter Property="Padding" Value="6,0,6,0" />
+            <Setter Property="VerticalAlignment" Value="Center" />
+            <Setter Property="Visibility" Value="Hidden" />
+        </Style>
+
+        <Style x:Key="StyleCountTextBlock" TargetType="TextBlock" BasedOn="{StaticResource StyleHiddenTextBlock}">
+            <Setter Property="Foreground" Value="Purple" />
+            <Setter Property="HorizontalAlignment" Value="Right" />
+        </Style>
+
+        <Style x:Key="styleInputTextBox" TargetType="TextBox" BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="AcceptsReturn" Value="True" />
+        </Style>
+
+        <Style x:Key="styleMatchInputTextBox" TargetType="TextBox" BasedOn="{StaticResource styleInputTextBox}">
+            <EventSetter Event="LostFocus" Handler="TextBoxInput_OnLostFocus" />
+            <EventSetter Event="TextChanged" Handler="TextBoxInput_OnTextChanged" />
+            <Setter Property="Background" Value="{StaticResource BrushText}" />
+            <Setter Property="ContextMenu" Value="{StaticResource ContextMenuTextProcessing}" />
+            <Setter Property="Panel.ZIndex" Value="{x:Static sys:Int32.MaxValue}" />
+        </Style>
+
+        <Style x:Key="StyleGroupsListBox" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+            <Setter Property="ItemTemplate" Value="{StaticResource DataTemplateGroups}" />
+        </Style>
+
+        <Style x:Key="StyleMatchListBox" TargetType="ListBox" BasedOn="{StaticResource {x:Type ListBox}}">
+            <EventSetter Event="MouseDoubleClick" Handler="ListBoxMatch_OnMouseDoubleClick" />
+            <Setter Property="ItemTemplate" Value="{StaticResource DataTemplateMatch}" />
+            <Setter Property="Panel.ZIndex" Value="{x:Static sys:Int32.MaxValue}" />
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition />
+            <ColumnDefinition Width="Auto" />
+        </Grid.ColumnDefinitions>
+
+        <!-- ReSharper disable once Xaml.IndexOutOfGridDefinition -->
+        <TabControl x:Name="TabControlMain" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="10"
+                    Background="Transparent"
+                    BorderBrush="{StaticResource BrushYellow}"
+                    BorderThickness="2"
+                    Margin="{StaticResource ThicknessMedium}">
+
+            <TabItem Header="Find Matches">
+                <Grid DataContext="{StaticResource CollectionResults}">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition MinWidth="300" />
+                        <ColumnDefinition MinWidth="150" />
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Grid.Row="0" Grid.Column="0" Header="Input (type or paste) your text here:">
+                        <TextBox x:Name="TextBoxMain"
+                                 AcceptsReturn="True"
+                                 TextWrapping="WrapWithOverflow"
+                                 HorizontalScrollBarVisibility="Disabled"
+                                 Text="{Binding Path=Input, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                 VerticalScrollBarVisibility="Auto" />
+                    </GroupBox>
+
+                    <GridSplitter Grid.Column="1"
+                                  Style="{StaticResource styleVerticalGridSplitter}" />
+
+                    <GroupBox Grid.Row="0" Grid.Column="1" Header="Your results:">
+                        <ListBox x:Name="ListBoxMatches"
+                                 Style="{StaticResource StyleGroupsListBox}" />
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Match +/-">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                        <ColumnDefinition />
+                    </Grid.ColumnDefinitions>
+
+                    <GroupBox Header="Positive Match:"
+                              Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
+                              DataContext="{StaticResource CollectionPositive}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition />
+                                <ColumnDefinition />
+                            </Grid.ColumnDefinitions>
+
+                            <TextBox x:Name="TextBoxPositive" Grid.Row="0" Grid.Column="0"
+                                     Style="{StaticResource styleMatchInputTextBox}"
+                                     Text="{Binding Input, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <ListBox x:Name="ListBoxPositive" Grid.Row="0" Grid.Column="0"
+                                     Style="{StaticResource StyleMatchListBox}" />
+
+                            <ListBox x:Name="ListBoxGroups" Grid.Row="0" Grid.Column="1"
+                                     Style="{StaticResource StyleGroupsListBox}" />
+
+                            <TextBlock x:Name="TextBlockPossitive" Grid.Row="1" Grid.Column="0"
+                                       Style="{StaticResource StyleCountTextBlock}"
+                                       Text="{Binding Path=UnmatchCount, Mode=OneWay,
+                                Converter={StaticResource CountToTextConverter}, ConverterParameter=unmatch|unmatches}"
+                                       Visibility="{Binding Path=UnmatchCount, Mode=OneWay,
+                                Converter={StaticResource CountToVisibilityConverter}}" />
+                        </Grid>
+                    </GroupBox>
+
+                    <GroupBox Header="Negative Match:"
+                              Grid.Row="0" Grid.Column="2"
+                              DataContext="{StaticResource CollectionNegative}">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition />
+                                <RowDefinition Height="Auto" />
+                            </Grid.RowDefinitions>
+
+                            <TextBox x:Name="TextBoxNegative" Grid.Row="0"
+                                     Style="{StaticResource styleMatchInputTextBox}"
+                                     Text="{Binding Input, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" />
+
+                            <ListBox x:Name="ListBoxNegative" Grid.Row="0"
+                                     Style="{StaticResource StyleMatchListBox}" />
+
+                            <TextBlock x:Name="TextBlockNegative" Grid.Row="1"
+                                       Style="{StaticResource StyleCountTextBlock}"
+                                       Text="{Binding Path= MatchCount, Mode=OneWay,
+                                Converter={StaticResource CountToTextConverter}, ConverterParameter=match|matches}"
+                                       Visibility="{Binding Path=MatchCount, Mode=OneWay,
+                                Converter={StaticResource CountToVisibilityConverter}}" />
+                        </Grid>
+                    </GroupBox>
+                </Grid>
+            </TabItem>
+
+            <TabItem Header="Split">
+                <local:RegexSplitTab x:Name="regexSplitTab"
+                                     Error="{Binding ElementName=TextBlockStatus, Path=Text}"
+                                     Pattern="{Binding ElementName=TextBoxPattern, Path=Text}" />
+            </TabItem>
+            
+            <TabItem Header="Replace">
+                <local:RegexReplaceTab x:Name="regexReplaceTab"
+                                       Pattern="{Binding ElementName=TextBoxPattern, Path=Text}"></local:RegexReplaceTab>
+            </TabItem>
+        </TabControl>
+
+        <GroupBox Grid.Row="1" Grid.Column="0" Header="Input your pattern here:">
+            <TextBox x:Name="TextBoxPattern"
+                     Foreground="{StaticResource BrushBlue}"
+                     Margin="{StaticResource ThicknessSmall}"
+                     BorderBrush="{StaticResource BrushBorder}"
+                     TextChanged="TextBoxPattern_OnTextChanged"
+                     xaml:TextBoxServices.ClickedObject="{Binding ElementName=ButtonGo}" />
+        </GroupBox>
+
+        <Button x:Name="ButtonGo" Grid.Row="1" Grid.Column="1"
+                Margin="{StaticResource ThicknessMedium}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Center"
+                Template="{StaticResource ControlTemplateButton}"
+                Height="48"
+                Click="ButtonGo_OnClick" />
+
+        <!-- ReSharper disable once Xaml.IndexOutOfGridDefinition -->
+        <StatusBar Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="10"
+                   Background="Transparent"
+                   Margin="{StaticResource ThicknessMedium}">
+            <TextBlock x:Name="TextBlockStatus"
+                       Foreground="Red"
+                       Style="{StaticResource StyleHiddenTextBlock}"
+                       TextAlignment="Left" />
+        </StatusBar>
+    </Grid>
+</Window>
