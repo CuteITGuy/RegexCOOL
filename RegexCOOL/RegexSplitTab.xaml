@@ -39,7 +39,9 @@
         <GroupBox Header="Input" Grid.Column="0">
             <TextBox x:Name="textBoxInput"
                      Text="{Binding Path=Input}"
-                     AcceptsReturn="True" />
+                     AcceptsReturn="True"
+                     HorizontalScrollBarVisibility="Auto"
+                     VerticalScrollBarVisibility="Auto" />
         </GroupBox>
 
         <GridSplitter Grid.Column="1"

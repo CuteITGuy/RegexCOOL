@@ -4,8 +4,8 @@
         xmlns:sys="clr-namespace:System;assembly=mscorlib"
         xmlns:xaml="http://wpf.cb.com/xaml"
         xmlns:local="clr-namespace:CB.RegexCOOL"
-        Title="MainWindow" Height="660" Width="900" FontSize="13"
-        xaml:AeroGlass.AeroGlassEnabled="True">
+        Title="Regex COOL" Height="660" Width="900" FontSize="13"
+        xaml:AeroGlass.AeroGlassEnabled="True" Icon="code.ico">
 
     <Window.CommandBindings>
         <CommandBinding Command="xaml:TextCommands.Trim"
